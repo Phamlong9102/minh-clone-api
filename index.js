@@ -27,6 +27,6 @@ db.once("open", function () {
 // Auth route
 app.use("/", authRoute); 
 
-app.listen(proces.env.PORT, () => {
+app.listen(process.env.PORT, () => {
    console.log("Server is running on port 3000");
 });
