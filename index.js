@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const authRoute = require("./routes/auth"); 
 
-
 const app = express();
 dotenv.config();
 app.use(cors());
