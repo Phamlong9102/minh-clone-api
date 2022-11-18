@@ -12,23 +12,23 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
-// Connect database
+// KẾT NỐI VỚI DATABASE
 mongoose.connect(process.env.MONGO_DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
 
-// Check connect to DB
+// KIỂM TRA KẾT NỐI VỚI DATABASE
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: 500"));
 db.once("open", function () {
     console.log("Connected DB successfully");
 });
 
-// Auth route
+// ĐƯỜNG DẪN ĐẮNG KÍ ĐĂNG NHẬP
 app.use("/", authRoute); 
 
-// User route
+// ĐƯỜNG DẪN LẤY TẤT CẢ USER VÀ XÓA USER
 app.use("/", userRoute); 
 
 app.listen(process.env.PORT, () => {

@@ -1,13 +1,18 @@
 const authController = require("../controllers/authController");
+const middlewareController = require("../controllers/middlewareController"); 
 
-const router = require("express").Router(); 
+const router = require("express").Router();
 
-// Regiter route
-router.post("/register", authController.userRegister)
+// ĐĂNG KÍ
+router.post("/register", authController.userRegister);
 
-// Login route
-router.post("/login", authController.loginUser)
+// ĐĂNG NHẬP
+router.post("/login", authController.loginUser);
 
+// DÙNG REFRESHTOKEN ĐỂ LẤY THẰNG ACCESSTOKEN MỚI VÀ REFRESHTOKEN MỚI
+router.post("/refresh", authController.requestRefreshToken);
 
-module.exports = router;    
+// ĐĂNG XUẤT
+router.post("/logout", middlewareController.verifyToken, authController.userLogout); 
 
+module.exports = router;

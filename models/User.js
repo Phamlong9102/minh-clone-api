@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// KHAI BÁO SCHEMA CÁC THÀNH PHẦN TRONG DATABASE
 const userSchema = new mongoose.Schema(
    {
       userName: {

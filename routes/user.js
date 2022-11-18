@@ -1,12 +1,12 @@
 const userController = require("../controllers/userController");
-
 const router = require("express").Router(); 
+const middlewareController = require("../controllers/middlewareController");
 
-// Get all users
-router.get("/getall", userController.getAllUsers); 
+// LẤY TẤT CẢ USER
+router.get("/getall", middlewareController.verifyToken, userController.getAllUsers); 
 
-// Delete user
-router.delete("/delete/:id", userController.deleteUser); 
+// XÓA USER
+router.delete("/delete/:id", middlewareController.verifyTokenAndAdminAuth ,userController.deleteUser); 
 
 module.exports = router; 
 
