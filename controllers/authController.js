@@ -32,7 +32,7 @@ const authController = {
                 admin: false,
             },
             process.env.JWT_ACCESS_KEY,
-            { expiresIn: "20s" }
+            { expiresIn: "365d" }
         );
     },
 
@@ -50,19 +50,21 @@ const authController = {
 
     // HÀM ĐĂNG NHẬP
     loginUser: async (req, res) => {
+        const {username: userName, password} = res.req.body || {} 
+        console.log('res.req.body', res.req.body)
         try {
-            const user = await User.findOne({ userName: req.body.userName });
+            const user = await User.findOne({ userName });
             // CHECK USERNAME TRONG DATABASE
             if (!user) {
-                res.status(404).json;
-            }
+                res.status(403).json("TÀI KHOẢN KHÔNG TỒN TẠI");
+            } 
             const validPassword = await bcrypt.compare(
-                req.body.password,
+                password,
                 user.password
             );
             // CHECK PASSWORD TRONG DATABASE
             if (!validPassword) {
-                res.status(404).json("Sai mật khẩu");
+                res.status(401).json("SAI MẬT KHẨU");
             }
             // NẾU CÓ USER NAME VÀ ĐÚNG PASSWORD
             if (user && validPassword) {
@@ -81,7 +83,7 @@ const authController = {
                 // LOẠI PASSWORD KHỎI RESPONSE
                 const { password, ...others } = user._doc;
                 // TRẢ VỀ USER VÀ ACCESSTOKEN TRỪ PASSWORD
-                res.status(200).json({ ...others, accessToken });
+                res.status(200).json({ ...others, accessToken, refreshToken });
             }
         } catch (err) {
             res.status(500).json();
@@ -93,12 +95,12 @@ const authController = {
         // LẤY REFRESH TOKEN TỪ COOKIE
         const refreshToken = req.cookies.refreshToken;
         // NẾU KHÔNG CÓ REFRESHTOKEN
-        if (!refreshToken) {
-            return res.status(401).json("Refresh token đã hết hạn hoặc bạn chưa đăng nhập");
+        if (!refreshToken) {    
+            return res.status(401).json("REFRESH TOKEN ĐÃ HẾT HẠN HOẶC BẠN CHƯA ĐĂNG NHẬP");
         }
         // NẾU CÓ REFRESHTOKEN MÀ REFRESHTOKEN KHÔNG PHẢI CỦA MÌNH HOẶC CỦA THẰNG NÀO ĐÓ
         if(!refreshTokens.includes(refreshToken)) {
-            return res.status(403).json("Refresh token đang sử dụng không phải của bạn")
+            return res.status(403).json("REFRESH TOKEN ĐANG SỬ DỤNG KHÔNG PHẢI CỦA BẠN")
         }
         // KIỂM TRA THẰNG REFRESHTOKEN
         jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
@@ -134,3 +136,4 @@ const authController = {
 };
 
 module.exports = authController;
+

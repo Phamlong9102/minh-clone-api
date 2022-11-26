@@ -12,14 +12,14 @@ const middlewareController = {
             jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
                 // NẾU LỖI 
                 if(err) {
-                    res.status(403).json("Token không hợp lệ hoặc đã hết hạn"); 
+                    return res.status(403).json("AccessToken không hợp lệ hoặc đã hết hạn"); 
                 }
                 // KHÔNG LỖI THÌ TRẢ VỀ USER
                 req.user = user; 
                 next(); 
             })
         } else {
-            res.status(401).json("Bạn chưa được xác thực")
+            return res.status(401).json("Bạn chưa được xác thực")
         }
     }, 
 
@@ -32,7 +32,7 @@ const middlewareController = {
                 // NẾU ĐÚNG THÌ TIẾP TỤC
                 next(); 
             } else {
-                res.status(403).json("Bạn không đủ quyền để thực hiện hành động này")
+                return res.status(403).json("Bạn không đủ quyền để thực hiện hành động này")
             }
         })
     }  
