@@ -1,4 +1,3 @@
-const { findByIdAndDelete } = require("../models/User");
 const User = require("../models/User"); 
 const userController = {
     // HÀM LẤY TẤT CẢ USER

@@ -3,8 +3,11 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const authRoute = require("./routes/auth"); 
-const userRoute = require("./routes/user")
+const authRoute = require("./routes/auth");
+const userRoute = require("./routes/user");
+const productRoute = require("./routes/product");
+const aboutRoute = require("./routes/about");
+const bannerRoute = require("./routes/banner"); 
 
 const app = express();
 dotenv.config();
@@ -26,11 +29,20 @@ db.once("open", function () {
 });
 
 // ĐƯỜNG DẪN ĐẮNG KÍ ĐĂNG NHẬP
-app.use("/", authRoute); 
+app.use("/", authRoute);
 
 // ĐƯỜNG DẪN LẤY TẤT CẢ USER VÀ XÓA USER
-app.use("/", userRoute); 
+app.use("/", userRoute);
+
+// ĐƯỜNG DẪN THÊM SẢN PHẨM VÀ LẤY TẤT CẢ SẢN PHẨM
+app.use("/", productRoute);
+
+// ĐƯỜNG DẪN THÊM DATA ABOUT VÀ LẤY DỮ LIỆU ABOUT
+app.use("/", aboutRoute);
+
+// ĐƯỜNG DẪN THÊM DATA BANNER VÀ LẤY DATA BANNER
+app.use("/", bannerRoute); 
 
 app.listen(process.env.PORT, () => {
-   console.log("Server is running on port 3000");
+    console.log("Server is running on port 3000");
 });

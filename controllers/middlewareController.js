@@ -6,7 +6,7 @@ const middlewareController = {
         // LẤY TOKEN TỪ HEADERS
         const token = req.headers.token; 
         // NẾU CÓ TOKEN
-        if(token) {
+        if(token) { 
             // LẤY TOKEN ĐẰNG SAU THẰNG BEARER
             const accessToken = token.split(" ")[1]; 
             jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {

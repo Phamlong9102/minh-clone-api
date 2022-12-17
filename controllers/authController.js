@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // ARRAY NÀY CÓ TÁC DỤNG KHI LOGIN ARRAY NÓ SẼ PUSH REFRESSTOKEN DÙNG ĐỂ LƯU TRỮ
-let refreshTokens = []; 
+let refreshTokens = [];
 const authController = {
     // HÀM ĐĂNG KÍ
     userRegister: async (req, res) => {
@@ -15,6 +15,7 @@ const authController = {
                 userName: req.body.userName,
                 email: req.body.email,
                 password: hashedPassword,
+                cart: req.body.cart,
             });
             // LƯU USER VÀO TRONG DATABASE
             await newUser.save();
@@ -28,7 +29,7 @@ const authController = {
     generateAccessToken: (user) => {
         return jwt.sign(
             {
-                id: user.id,
+                id: user.id, // HÀM TẠO ACCESS TOKEN
                 admin: false,
             },
             process.env.JWT_ACCESS_KEY,
@@ -50,18 +51,15 @@ const authController = {
 
     // HÀM ĐĂNG NHẬP
     loginUser: async (req, res) => {
-        const {username: userName, password} = res.req.body || {} 
-        console.log('res.req.body', res.req.body)
+        const { username: userName, password } = res.req.body || {};
+        console.log("res.req.body", res.req.body);
         try {
             const user = await User.findOne({ userName });
             // CHECK USERNAME TRONG DATABASE
             if (!user) {
                 res.status(403).json("TÀI KHOẢN KHÔNG TỒN TẠI");
-            } 
-            const validPassword = await bcrypt.compare(
-                password,
-                user.password
-            );
+            }
+            const validPassword = await bcrypt.compare(password, user.password);
             // CHECK PASSWORD TRONG DATABASE
             if (!validPassword) {
                 res.status(401).json("SAI MẬT KHẨU");
@@ -71,7 +69,7 @@ const authController = {
                 const accessToken = authController.generateAccessToken(user);
                 const refreshToken = authController.generateRefreshToken(user);
                 // LƯU TRỮ REFRESHTOKEN VÀO TRONG THẰNG REFRESHTOKENS
-                refreshTokens.push(refreshToken); 
+                refreshTokens.push(refreshToken);
                 // LƯU REFRESHTOKEN VÀO COOKIE
                 res.cookie("refreshToken", refreshToken, {
                     // OPTIONS CỦA COOKIE
@@ -86,7 +84,7 @@ const authController = {
                 res.status(200).json({ ...others, accessToken, refreshToken });
             }
         } catch (err) {
-            res.status(500).json();
+            res.status(500).json("ĐĂNG NHẬP THẤT BẠI");
         }
     },
 
@@ -95,12 +93,16 @@ const authController = {
         // LẤY REFRESH TOKEN TỪ COOKIE
         const refreshToken = req.cookies.refreshToken;
         // NẾU KHÔNG CÓ REFRESHTOKEN
-        if (!refreshToken) {    
-            return res.status(401).json("REFRESH TOKEN ĐÃ HẾT HẠN HOẶC BẠN CHƯA ĐĂNG NHẬP");
+        if (!refreshToken) {
+            return res
+                .status(401)
+                .json("REFRESH TOKEN ĐÃ HẾT HẠN HOẶC BẠN CHƯA ĐĂNG NHẬP");
         }
         // NẾU CÓ REFRESHTOKEN MÀ REFRESHTOKEN KHÔNG PHẢI CỦA MÌNH HOẶC CỦA THẰNG NÀO ĐÓ
-        if(!refreshTokens.includes(refreshToken)) {
-            return res.status(403).json("REFRESH TOKEN ĐANG SỬ DỤNG KHÔNG PHẢI CỦA BẠN")
+        if (!refreshTokens.includes(refreshToken)) {
+            return res
+                .status(403)
+                .json("REFRESH TOKEN ĐANG SỬ DỤNG KHÔNG PHẢI CỦA BẠN");
         }
         // KIỂM TRA THẰNG REFRESHTOKEN
         jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
@@ -108,13 +110,15 @@ const authController = {
             if (err) {
                 console.log("Có lỗi: ", err);
             }
-            // KHI CÓ REFRESHTOKEN MỚI RỒI THÌ LỌC THẰNG REFRESHTOKEN CŨ RA 
-            refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+            // KHI CÓ REFRESHTOKEN MỚI RỒI THÌ LỌC THẰNG REFRESHTOKEN CŨ RA
+            refreshTokens = refreshTokens.filter(
+                (token) => token !== refreshToken
+            );
             // TẠO ACCESSTOKEN VÀ REFRESHTOKEN MỚI
             const newAccessToken = authController.generateAccessToken(user);
             const newRefreshToken = authController.generateRefreshToken(user);
             // THÊM REFRESHTOKEN MỚI VÀO ARRAY CỦA MÌNH
-            refreshTokens.push(newRefreshToken); 
+            refreshTokens.push(newRefreshToken);
             // LƯU REFRESHTOKEN VÀO COOKIE
             res.cookie("refreshToken", newRefreshToken, {
                 // OPTIONS CỦA COOKIE
@@ -122,18 +126,19 @@ const authController = {
                 secure: false,
                 path: "/",
                 sameSite: "strict",
-            }); 
-            res.status(200).json({ accessToken: newAccessToken }); 
+            });
+            res.status(200).json({ accessToken: newAccessToken });
         });
     },
 
     // ĐĂNG XUẤT
-    userLogout: async(req, res) => {
-        res.clearCookie("refreshToken"); 
-        refreshTokens = refreshTokens.filter(token => token !== req.cookies.refreshToken); 
-        res.status(200).json("ĐĂNG XUẤT THÀNH CÔNG")
-    }
+    userLogout: async (req, res) => {
+        res.clearCookie("refreshToken");
+        refreshTokens = refreshTokens.filter(
+            (token) => token !== req.cookies.refreshToken
+        );
+        res.status(200).json("ĐĂNG XUẤT THÀNH CÔNG");
+    },
 };
 
 module.exports = authController;
-

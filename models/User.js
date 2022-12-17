@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema(
          type: Boolean,
          default: false,
       },
+      cart: {
+         type: Array, 
+      }
    },
    { timestamps: true }, 
    { collection: "users" }, 
